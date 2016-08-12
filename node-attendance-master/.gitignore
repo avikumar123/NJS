@@ -1,0 +1,5 @@
+*.sublime*
+.DS_Store
+Example/
+Node Notes
+log.txt

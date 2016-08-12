@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+	<meta charset="utf-8" >
+	<title>Node.js Bootcamp</title>
+	<style>
+
+		input[type=text]
+		{
+		    background-color: #BFBDBD;
+		    border:solid 1px #BFBDBD;
+		    color: black;
+		    height: 28px;
+		    padding-left:10px;
+		    width: 191px;
+		    box-shadow: 2px 2px 0 #828181 inset;
+		}
+		input[type=submit]
+		{
+		    background-color: #1E1E1E;
+		    color: #979797;
+		    height: 24px;
+		    width: 103px;
+		    color: #bbbbbb;
+		    text-transform:uppercase;
+		    box-shadow:-1px 2px #6E6B6A inset;
+		}
+
+		input[type=submit], input[type=text]
+		{
+		    border: 0;
+		    border-radius:5px;
+		    font-family: Sansation,Arial;
+		}
+	</style>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+	
+</head>
+
+<body>
+	<h1>Let us know you're here!</h1>
+
+	<script>
+		var socket = io.connect();
+
+		socket.on('previous', function(attendees) {
+			for (var i = 0; i < attendees.length; i++) {
+				var data = attendees[i];
+				$('#attendeeList').append('<b>'+ data.firstName + ' ' + data.lastName + ' -</b> ' +
+		    	data.email + '<br>');
+			}
+		});
+
+		socket.on('used', function(){
+			alert('That email has already been used!');
+		});
+
+		// listener, whenever the server emits 'updateAttendees', this the attendee 
+		// list
+		socket.on('updateAttendees', function (data) {
+		    $('#attendeeList').append('<b>'+ data.firstName + ' ' + data.lastName + ' -</b> ' +
+		    	data.email + '<br>');
+		});
+		// on load of page
+	  	$(function(){
+		    // when the client clicks SUBMIT
+		    $('#submit').click( function(e) {
+		    		e.preventDefault();
+			      var firstName = $('#firstName').val();
+			      $('#firstName').val('');
+			      var lastName = $('#lastName').val();
+			      $('#lastName').val('');
+			      var email = $('#email').val();
+			      $('#email').val('');
+			      // tell server to execute send attendees with 3 parameters
+			      socket.emit('sendAttendees', {firstName: firstName, lastName: lastName, email: email});
+		    });
+	 
+		    // when the client hits ENTER on their keyboard
+		    $('#email').keypress(function(e) {
+
+			    if(e.which == 13) {
+				    $(this).blur();
+				    $('#submit').focus().click();
+			    }
+		    });
+	    });
+
+	</script>
+
+
+		First Name: <input type="text" id="firstName" placeholder="first name"><br><br>
+		Last Name: <input type="text" id="lastName" placeholder="last name"><br><br>
+		Email: <input type="text" id="email" placeholder="email"><br><br>
+		<input type="submit" value="Submit" id="submit">
+		<br><br>
+		<div id="attendeeList"></div>
+
+
+</body>
+
+
+</html>
